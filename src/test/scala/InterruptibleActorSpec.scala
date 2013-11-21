@@ -12,6 +12,9 @@ class InterruptibleActorSpec extends Specification { def is =
     "大量のメッセージを捌くケース"                                              ! e2^
     "状態を持つケース"                                                          ! e3^
     "senderにreplyするケース"                                                   ! e4^
+                                                                                p^
+  "InterruptibleActor for Java"                                                 ^
+    "ベーシックなケース"                                                        ! e5^
     Step(teardown)                                                              ^
                                                                                 end
 
@@ -78,6 +81,11 @@ class InterruptibleActorSpec extends Specification { def is =
     }
     Thread.sleep(2000)
     observer.underlyingActor.log must equalTo(List(5, 1))
+  }
+
+  def e5 = {
+    import scala.collection.JavaConverters._
+    JavaExample.e1(system).asScala must equalTo(List(1, 5))
   }
 }
 
