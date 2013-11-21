@@ -10,11 +10,10 @@ scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
   // ---------- basic ----------
-   "org.scalaz" %% "scalaz-core" % "7.0.4"
-  ,"org.typelevel" %% "scalaz-contrib-210" % "0.1.5"
-  ,"com.typesafe.akka" %% "akka-actor" % "[2.2.0,2.2.3]"
+   "com.typesafe.akka" %% "akka-actor" % "[2.2.0,2.2.3]"
   // ---------- test scope ----------
   ,"org.specs2" %% "specs2" % "2.3.4" % "test"
+  ,"com.typesafe.akka" %% "akka-testkit" % "[2.2.0,2.2.3]" % "test"
   ,"org.typelevel" %% "scalaz-specs2" % "0.1.5" % "test"
   ,"junit" % "junit" % "4.11" % "test"
   ,"org.pegdown" % "pegdown" % "1.4.1" % "test"
@@ -41,11 +40,21 @@ scalacOptions <++= scalaVersion.map { sv =>
 
 testOptions in (Test, test) += Tests.Argument("console", "html", "junitxml")
 
-initialCommands := """
-import scalaz._, Scalaz._
+initialCommands in Test := """
+import akka.actor._
+import akka.testkit._
+import org.nisshiee.interruptibleactor._
+class Observer extends Actor {
+  var log: List[Any] = Nil
+  override def receive = { case m => log = m :: log }
+}
+implicit val system = ActorSystem("test")
+val observer = TestActorRef[Observer]
 """
 
-cleanupCommands := ""
+cleanupCommands in Test := """
+system.shutdown
+"""
 
 
 // ========== for sonatype oss publish ==========
